@@ -1,4 +1,4 @@
-# Scribe - AI Document Editor
+# Linkelsya - AI Document Editor
 
 A clean, minimal document editor with AI-powered writing assistance and knowledge context. Write documents informed by your reference materials, with an AI assistant that helps you draft, edit, and refine.
 

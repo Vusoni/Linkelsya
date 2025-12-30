@@ -25,7 +25,7 @@ export function CTA() {
               Ready to write smarter?
             </h2>
             <p className="text-lg text-white/80 font-serif max-w-xl mx-auto mb-8">
-              Join writers who use Scribe to create documents informed by their knowledge and enhanced by AI.
+              Join writers who use Linkelsya to create documents informed by their knowledge and enhanced by AI.
             </p>
             <Link href="/auth">
               <Button 

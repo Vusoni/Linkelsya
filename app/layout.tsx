@@ -4,7 +4,7 @@ import { ConvexClientProvider } from "@/components/providers/ConvexClientProvide
 import { AuthProvider } from "@/components/providers/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Scribe - AI Document Editor",
+  title: "Linkelsya - AI Document Editor",
   description: "Write smarter with AI-powered document editing and knowledge context",
 };
 

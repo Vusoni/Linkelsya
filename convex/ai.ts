@@ -4,10 +4,6 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export const generateText = action({
   args: {
     prompt: v.string(),
@@ -19,6 +15,11 @@ export const generateText = action({
     mode: v.union(v.literal("write"), v.literal("edit"), v.literal("chat")),
   },
   handler: async (ctx, args) => {
+    // Create OpenAI client inside the handler so env vars are available
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const { prompt, documentContent, knowledgeContext, mode } = args;
 
     // Build knowledge context string
@@ -105,6 +106,11 @@ export const improveWriting = action({
     instruction: v.string(),
   },
   handler: async (ctx, args) => {
+    // Create OpenAI client inside the handler so env vars are available
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const { text, instruction } = args;
 
     try {
