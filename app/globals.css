@@ -76,14 +76,45 @@ a {
   color: #666;
 }
 
-.ProseMirror ul,
+.ProseMirror ul {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+  list-style-type: disc;
+}
+
 .ProseMirror ol {
   padding-left: 1.5em;
   margin-bottom: 1em;
+  list-style-type: decimal;
+}
+
+.ProseMirror ul ul {
+  list-style-type: circle;
+}
+
+.ProseMirror ul ul ul {
+  list-style-type: square;
+}
+
+.ProseMirror ol ol {
+  list-style-type: lower-alpha;
+}
+
+.ProseMirror ol ol ol {
+  list-style-type: lower-roman;
 }
 
 .ProseMirror li {
   margin-bottom: 0.25em;
+  display: list-item;
+}
+
+.ProseMirror li p {
+  margin-bottom: 0.25em;
+}
+
+.ProseMirror li > p:first-child {
+  margin-bottom: 0;
 }
 
 .ProseMirror code {
@@ -113,6 +144,14 @@ a {
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+/* Text highlight styles */
+.ProseMirror mark {
+  border-radius: 0.25em;
+  padding: 0.1em 0.2em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 /* Custom scrollbar */

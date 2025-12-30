@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useRequireAuth } from "@/components/providers/AuthProvider";
+import { useRequireSubscription } from "@/components/providers/AuthProvider";
 import { EditorHeader } from "@/components/editor/EditorHeader";
 import { TipTapEditor, TipTapEditorRef } from "@/components/editor/TipTapEditor";
 import { KnowledgeSidebar } from "@/components/editor/KnowledgeSidebar";
@@ -16,13 +16,14 @@ export default function EditorPage() {
   const router = useRouter();
   const documentId = params.id as Id<"documents">;
   
-  const { user, isLoading: authLoading } = useRequireAuth();
+  const { user, isLoading: authLoading, isSubscribed } = useRequireSubscription();
   const document = useQuery(api.documents.get, { documentId });
   const updateDocument = useMutation(api.documents.update);
 
   const [content, setContent] = useState("");
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [lastSaved, setLastSaved] = useState<number | undefined>();
+  const [selectedContext, setSelectedContext] = useState<string | undefined>();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const editorRef = useRef<TipTapEditorRef>(null);
 
@@ -88,6 +89,14 @@ export default function EditorPage() {
     }
   };
 
+  const handleAddToContext = (text: string) => {
+    setSelectedContext(text);
+  };
+
+  const handleClearContext = () => {
+    setSelectedContext(undefined);
+  };
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -105,7 +114,7 @@ export default function EditorPage() {
     );
   }
 
-  if (!user) {
+  if (!user || !isSubscribed) {
     return null;
   }
 
@@ -127,6 +136,7 @@ export default function EditorPage() {
   return (
     <div className="min-h-screen h-screen flex flex-col bg-background">
       <EditorHeader
+        documentId={documentId}
         title={document.title}
         onTitleChange={handleTitleChange}
         saveStatus={saveStatus}
@@ -141,6 +151,7 @@ export default function EditorPage() {
             ref={editorRef}
             content={content}
             onContentChange={handleContentChange}
+            onAddToContext={handleAddToContext}
           />
         </main>
         
@@ -148,6 +159,8 @@ export default function EditorPage() {
           documentId={documentId}
           documentContent={content}
           onInsertText={handleInsertText}
+          selectedContext={selectedContext}
+          onClearContext={handleClearContext}
         />
       </div>
     </div>

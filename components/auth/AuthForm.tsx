@@ -27,10 +27,13 @@ export function AuthForm() {
     try {
       if (mode === "signin") {
         await signIn(email, password);
+        // Existing users go to dashboard (subscription check happens there)
+        router.push("/dashboard");
       } else {
         await signUp(email, password, name || undefined);
+        // New users go to subscribe page to start trial/subscription
+        router.push("/subscribe");
       }
-      router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

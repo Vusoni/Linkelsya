@@ -7,7 +7,17 @@ export default defineSchema({
     name: v.optional(v.string()),
     passwordHash: v.string(),
     createdAt: v.number(),
-  }).index("by_email", ["email"]),
+    // Subscription fields
+    subscriptionStatus: v.optional(v.union(
+      v.literal("active"),
+      v.literal("trialing"),
+      v.literal("canceled"),
+      v.literal("past_due")
+    )),
+    polarCustomerId: v.optional(v.string()),
+    subscriptionExpiresAt: v.optional(v.number()),
+  }).index("by_email", ["email"])
+    .index("by_polar_customer", ["polarCustomerId"]),
 
   documents: defineTable({
     userId: v.id("users"),

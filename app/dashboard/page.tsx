@@ -1,20 +1,82 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRequireAuth } from "@/components/providers/AuthProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { NewDocumentButton } from "@/components/dashboard/NewDocumentButton";
 import { DocumentCard } from "@/components/dashboard/DocumentCard";
 import { Document } from "@/lib/types";
 
 export default function DashboardPage() {
-  const { user, isLoading: authLoading } = useRequireAuth();
+  const { user, isLoading: authLoading, isSubscribed, refreshSubscription } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [pollAttempts, setPollAttempts] = useState(0);
+  
+  const isPostCheckout = searchParams.get("checkout") === "success";
   
   const documents = useQuery(
     api.documents.listByUser,
     user ? { userId: user._id } : "skip"
   );
+
+  // Handle post-checkout polling for subscription status
+  useEffect(() => {
+    if (!isPostCheckout || authLoading || !user) return;
+    
+    if (isSubscribed) {
+      // Subscription confirmed, remove query param
+      router.replace("/dashboard");
+      return;
+    }
+    
+    // Start polling for subscription
+    setIsCheckingOut(true);
+    const maxAttempts = 30; // Poll for up to 30 seconds
+    
+    const pollInterval = setInterval(() => {
+      setPollAttempts((prev) => {
+        const newAttempts = prev + 1;
+        refreshSubscription();
+        
+        if (newAttempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          setIsCheckingOut(false);
+          // Redirect to subscribe page if subscription not confirmed
+          router.push("/subscribe");
+        }
+        return newAttempts;
+      });
+    }, 1000);
+
+    return () => clearInterval(pollInterval);
+  }, [isPostCheckout, authLoading, user, isSubscribed, refreshSubscription, router]);
+
+  // Redirect when subscription is confirmed during polling
+  useEffect(() => {
+    if (isPostCheckout && isSubscribed) {
+      setIsCheckingOut(false);
+      router.replace("/dashboard");
+    }
+  }, [isPostCheckout, isSubscribed, router]);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/auth");
+    }
+  }, [authLoading, user, router]);
+
+  // Redirect to subscribe if not subscribed (and not in post-checkout flow)
+  useEffect(() => {
+    if (!authLoading && user && !isSubscribed && !isPostCheckout && !isCheckingOut) {
+      router.push("/subscribe");
+    }
+  }, [authLoading, user, isSubscribed, isPostCheckout, isCheckingOut, router]);
 
   if (authLoading) {
     return (
@@ -24,7 +86,42 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  // Show activation screen during post-checkout polling
+  if (isCheckingOut || (isPostCheckout && !isSubscribed)) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-8 relative">
+            <div className="absolute inset-0 bg-green-100 rounded-full animate-ping opacity-25"></div>
+            <div className="relative w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-10 h-10 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
+            Payment Successful!
+          </h2>
+          <p className="text-gray-500 font-sans mb-4">
+            Activating your subscription...
+          </p>
+          <div className="flex items-center justify-center gap-3 text-gray-400">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span className="font-sans text-sm">This will only take a moment</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !isSubscribed) {
     return null;
   }
 

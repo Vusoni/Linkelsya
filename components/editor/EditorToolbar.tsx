@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { Editor } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +8,33 @@ interface EditorToolbarProps {
   editor: Editor | null;
 }
 
+// Highlight colors configuration
+const HIGHLIGHT_COLORS = [
+  { name: "Yellow", color: "#FEF08A", textColor: "#854D0E" },
+  { name: "Green", color: "#BBF7D0", textColor: "#166534" },
+  { name: "Blue", color: "#BFDBFE", textColor: "#1E40AF" },
+  { name: "Purple", color: "#DDD6FE", textColor: "#6B21A8" },
+  { name: "Pink", color: "#FBCFE8", textColor: "#9D174D" },
+  { name: "Orange", color: "#FED7AA", textColor: "#9A3412" },
+  { name: "Red", color: "#FECACA", textColor: "#991B1B" },
+  { name: "Teal", color: "#99F6E4", textColor: "#115E59" },
+];
+
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+  const highlightPickerRef = useRef<HTMLDivElement>(null);
+
+  // Close highlight picker when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (highlightPickerRef.current && !highlightPickerRef.current.contains(event.target as Node)) {
+        setShowHighlightPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   if (!editor) return null;
 
   const ToolButton = ({
@@ -35,6 +62,19 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       {children}
     </button>
   );
+
+  const handleHighlight = (color: string) => {
+    editor.chain().focus().toggleHighlight({ color }).run();
+    setShowHighlightPicker(false);
+  };
+
+  const removeHighlight = () => {
+    editor.chain().focus().unsetHighlight().run();
+    setShowHighlightPicker(false);
+  };
+
+  // Check if any highlight is active
+  const isHighlightActive = editor.isActive("highlight");
 
   return (
     <div className="flex items-center gap-1 px-4 py-2 bg-white border-b border-border overflow-x-auto">
@@ -68,6 +108,52 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
           <path d="M17.154 14c.23.516.346 1.09.346 1.72 0 1.342-.524 2.392-1.571 3.147C14.88 19.622 13.433 20 11.586 20c-1.64 0-3.263-.381-4.87-1.144V16.6c1.52.877 3.075 1.316 4.666 1.316 2.551 0 3.83-.732 3.839-2.197a2.21 2.21 0 0 0-.648-1.603l-.12-.117H3v-2h18v2h-3.846zm-4.078-3H7.629a4.086 4.086 0 0 1-.481-.522C6.716 9.92 6.5 9.246 6.5 8.452c0-1.236.466-2.287 1.397-3.153C8.83 4.433 10.271 4 12.222 4c1.471 0 2.879.328 4.222.984v2.152c-1.2-.687-2.515-1.03-3.946-1.03-2.48 0-3.719.782-3.719 2.346 0 .42.218.786.654 1.099.436.313.974.562 1.613.75.62.18 1.297.414 2.03.699z" />
         </svg>
       </ToolButton>
+
+      {/* Highlight color picker */}
+      <div className="relative" ref={highlightPickerRef}>
+        <button
+          type="button"
+          onClick={() => setShowHighlightPicker(!showHighlightPicker)}
+          title="Highlight"
+          className={cn(
+            "p-2 rounded transition-colors flex items-center gap-1",
+            isHighlightActive
+              ? "bg-primary/10 text-primary"
+              : "text-gray-500 hover:bg-muted hover:text-foreground"
+          )}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.243 4.515l-6.738 6.737-.707 2.121-1.04 1.041 2.828 2.829 1.04-1.041 2.122-.707 6.737-6.738-4.242-4.242zm6.364 3.536a1 1 0 0 1 0 1.414l-7.778 7.778-2.122.707-1.414 1.414a1 1 0 0 1-1.414 0l-4.243-4.243a1 1 0 0 1 0-1.414l1.414-1.414.707-2.121 7.778-7.778a1 1 0 0 1 1.414 0l5.657 5.657zm-6.364-.707l1.414 1.414-4.95 4.95-1.414-1.414 4.95-4.95zM4.283 16.89l2.828 2.829-1.414 1.414-4.243-1.414 2.828-2.829z" />
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 15l-4.243-4.243 1.415-1.414L12 12.172l2.828-2.829 1.415 1.414z" />
+          </svg>
+        </button>
+
+        {showHighlightPicker && (
+          <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-border/50 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="grid grid-cols-4 gap-1.5 mb-2">
+              {HIGHLIGHT_COLORS.map((item) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => handleHighlight(item.color)}
+                  title={item.name}
+                  className="w-7 h-7 rounded-md border border-border/50 hover:scale-110 transition-transform"
+                  style={{ backgroundColor: item.color }}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={removeHighlight}
+              className="w-full text-xs text-gray-500 hover:text-foreground py-1.5 rounded hover:bg-muted transition-colors font-sans"
+            >
+              Remove highlight
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="w-px h-6 bg-border mx-1" />
 

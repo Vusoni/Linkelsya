@@ -13,6 +13,7 @@ export const generateText = action({
       content: v.string(),
     })),
     mode: v.union(v.literal("write"), v.literal("edit"), v.literal("chat")),
+    systemInstructions: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Create OpenAI client inside the handler so env vars are available
@@ -20,13 +21,18 @@ export const generateText = action({
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const { prompt, documentContent, knowledgeContext, mode } = args;
+    const { prompt, documentContent, knowledgeContext, mode, systemInstructions } = args;
 
     // Build knowledge context string
     const knowledgeStr = knowledgeContext.length > 0
       ? `\n\nReference Materials:\n${knowledgeContext
           .map((k, i) => `[${i + 1}] ${k.title}:\n${k.content}`)
           .join("\n\n")}`
+      : "";
+
+    // Build custom instructions string if provided
+    const customInstructions = systemInstructions
+      ? `\n\nIMPORTANT - User's Custom Writing Instructions (follow these carefully):\n${systemInstructions}\n`
       : "";
 
     // Build system prompt based on mode
@@ -36,7 +42,7 @@ export const generateText = action({
       systemPrompt = `You are an expert writing assistant helping to compose a document. 
 Your task is to generate well-written, coherent text based on the user's request.
 Use a professional yet approachable tone. Write in clear, concise prose.
-
+${customInstructions}
 Current document content:
 """
 ${documentContent || "(empty document)"}
@@ -49,7 +55,7 @@ Only output the text to be added - no explanations or meta-commentary.`;
       systemPrompt = `You are an expert editor helping to improve a document.
 Your task is to edit and improve the text based on the user's request.
 Maintain the original voice and style while making improvements.
-
+${customInstructions}
 Current document content:
 """
 ${documentContent || "(empty document)"}
@@ -61,7 +67,7 @@ Only output the revised text - no explanations or meta-commentary.`;
     } else {
       systemPrompt = `You are a helpful writing assistant engaged in a conversation about a document.
 Help the user with their writing by answering questions, providing suggestions, and offering guidance.
-
+${customInstructions}
 Current document content:
 """
 ${documentContent || "(empty document)"}
