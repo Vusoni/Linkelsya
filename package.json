@@ -1,0 +1,36 @@
+{
+  "name": "ai-document-editor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "14.2.5",
+    "convex": "^1.14.0",
+    "@tiptap/react": "^2.6.0",
+    "@tiptap/starter-kit": "^2.6.0",
+    "@tiptap/extension-placeholder": "^2.6.0",
+    "@tiptap/extension-typography": "^2.6.0",
+    "@tiptap/extension-character-count": "^2.6.0",
+    "@tiptap/pm": "^2.6.0",
+    "openai": "^4.52.0",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.4",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5"
+  }
+}
