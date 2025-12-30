@@ -194,7 +194,7 @@ export default function SubscribePage() {
               d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
             />
           </svg>
-          <span className="font-serif font-bold text-xl text-foreground">Inkwell</span>
+          <span className="font-serif font-bold text-xl text-foreground">Linkelsya</span>
         </Link>
       </header>
 
@@ -212,7 +212,7 @@ export default function SubscribePage() {
             Unlock the full power of<br />AI-assisted writing
           </h1>
           <p className="text-lg text-gray-600 font-serif max-w-2xl mx-auto">
-            Join thousands of writers who use Inkwell to write faster, better, and with more clarity.
+            Join thousands of writers who use Linkelsya to write faster, better, and with more clarity.
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export default function SubscribePage() {
         <div className="bg-white rounded-2xl shadow-soft border border-border/50 overflow-hidden max-w-md mx-auto mb-12">
           {/* Card header */}
           <div className="bg-gradient-to-br from-primary to-primary-hover p-8 text-white text-center">
-            <h2 className="text-xl font-serif font-semibold mb-2">Inkwell Pro</h2>
+            <h2 className="text-xl font-serif font-semibold mb-2">Linkelsya Pro</h2>
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-5xl font-serif font-bold">$19</span>
               <span className="text-white/80 font-sans">/month</span>
