@@ -155,3 +155,57 @@ export const validateSession = query({
     return { valid: true, userId: session.userId };
   },
 });
+
+export const updateProfile = mutation({
+  args: {
+    token: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Validate session
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .first();
+
+    if (!session || session.expiresAt < Date.now()) {
+      throw new Error("Invalid or expired session");
+    }
+
+    const user = await ctx.db.get(session.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Build update object
+    const updates: { name?: string; email?: string } = {};
+
+    if (args.name !== undefined) {
+      updates.name = args.name;
+    }
+
+    if (args.email !== undefined) {
+      // Check if email is already taken by another user
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email!.toLowerCase()))
+        .first();
+
+      if (existingUser && existingUser._id !== user._id) {
+        throw new Error("Email is already in use");
+      }
+
+      updates.email = args.email.toLowerCase();
+    }
+
+    // Update user
+    await ctx.db.patch(user._id, updates);
+
+    return {
+      _id: user._id,
+      email: updates.email ?? user.email,
+      name: updates.name ?? user.name,
+    };
+  },
+});

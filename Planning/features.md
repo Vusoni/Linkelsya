@@ -1,0 +1,6 @@
+- Change the delete popup so that it uses the app UI rather than Native UI
+- Bullet points aren't visible on the document
+- add account management in the app
+- Make a feature of highlighting text in the colors
+- Allow user to highlight text and add it to the AI chat context
+- allow te user to add system instructions that guide the AI chat of the tone which should use or writing guideliness

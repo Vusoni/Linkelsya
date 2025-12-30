@@ -17,6 +17,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (data: { name?: string; email?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInMutation = useMutation(api.auth.signIn);
   const signUpMutation = useMutation(api.auth.signUp);
   const signOutMutation = useMutation(api.auth.signOut);
+  const updateProfileMutation = useMutation(api.auth.updateProfile);
   
   const user = useQuery(
     api.auth.getCurrentUser,
@@ -64,6 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: { name?: string; email?: string }) => {
+    if (token) {
+      await updateProfileMutation({ token, ...data });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -72,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        updateProfile,
       }}
     >
       {children}

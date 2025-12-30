@@ -1,17 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { AccountDropdown } from "@/components/ui/AccountDropdown";
 
 export function DashboardHeader() {
-  const { user, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-    window.location.href = "/";
-  };
-
   return (
     <header className="bg-white border-b border-border">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -34,15 +26,8 @@ export function DashboardHeader() {
           <span className="font-serif font-bold text-xl text-foreground">Linkelsya</span>
         </Link>
 
-        {/* Right side */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500 font-sans">
-            {user?.email}
-          </span>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            Sign Out
-          </Button>
-        </div>
+        {/* Right side - Account Dropdown */}
+        <AccountDropdown />
       </div>
     </header>
   );
